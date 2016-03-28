@@ -230,13 +230,16 @@ sendBatchRequest qs = do
         d <- readTVar k
         aps <- forM qs $ \q ->
             if requestIsNotif q
-                then return (buildRequest v q undefined, Nothing)
+                then do
+                    $(logDebug) "building a notification-request"
+                    return (buildRequest v q undefined, Nothing)
                 else do
                     p <- newEmptyTMVar 
                     i <- succ <$> readTVar l
                     m <- readTVar s
                     unless d $ writeTVar s $ M.insert i p m
                     unless d $ writeTVar l i
+                    $(logDebug) "building a value-returning request"
                     if d
                         then return (buildRequest v q i, Nothing)
                         else return (buildRequest v q i, Just p)
