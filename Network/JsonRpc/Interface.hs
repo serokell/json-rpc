@@ -138,7 +138,9 @@ processIncoming = ask >>= \qs -> join . liftIO . atomically $ do
                         processIncoming
                 Right v -> do
                     let e = OrphanError (rpcVer qs) (errorInvalid v)
+                    unsafeIOToSTM $ putStrLn "we are about to hang up"
                     writeTBMChan (outCh qs) $ MsgResponse e
+                    unsafeIOToSTM $ putStrLn "we are alive"
                     return $ do
                         $(logWarn) "got invalid message"
                         processIncoming
