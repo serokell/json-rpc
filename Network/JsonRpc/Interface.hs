@@ -248,6 +248,7 @@ sendBatchRequest qs = do
     if null aps
         then $(logDebug) "no responses pending"
         else $(logDebug) "listening for responses if pending"
+    $(logDebug) "about to return"
     liftIO . atomically $ forM aps $ \(a, pM) ->
         case pM of
             Nothing -> return Nothing
