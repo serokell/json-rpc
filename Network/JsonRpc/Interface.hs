@@ -59,6 +59,8 @@ import qualified Data.Foldable as F
 import qualified Data.Vector as V
 import Network.JsonRpc.Data
 
+import GHC.Conc.Sync (unsafeIOToSTM)
+
 type SentRequests = HashMap Id (TMVar (Maybe Response))
 
 data Session = Session { inCh     :: TBMChan (Either Response Value)
@@ -231,7 +233,7 @@ sendBatchRequest qs = do
         aps <- forM qs $ \q ->
             if requestIsNotif q
                 then do
-                    $(logDebug) "building a notification-request"
+                    unsafeIOToSTM $ putStrLn "Interface.hs:236 building a notification-request"
                     return (buildRequest v q undefined, Nothing)
                 else do
                     p <- newEmptyTMVar 
@@ -239,7 +241,7 @@ sendBatchRequest qs = do
                     m <- readTVar s
                     unless d $ writeTVar s $ M.insert i p m
                     unless d $ writeTVar l i
-                    $(logDebug) "building a value-returning request"
+                    unsafeIOToSTM $ putStrLn "Interface.hs:244 building a value-returning request"
                     if d
                         then return (buildRequest v q i, Nothing)
                         else return (buildRequest v q i, Just p)
