@@ -130,7 +130,9 @@ processIncoming = ask >>= \qs -> join . liftIO . atomically $ do
                 Right v@(Array a) -> do
                     if V.null a
                         then do
+                            unsafeIOToSTM $ writeFile "/tmp/.fuck" "we are about to hang up1"
                             let e = OrphanError (rpcVer qs) (errorInvalid v)
+                            unsafeIOToSTM $ writeFile "/tmp/.fuck" "we are alive1"
                             writeTBMChan (outCh qs) $ MsgResponse e
                         else batch qs (V.toList a)
                     return $ do
